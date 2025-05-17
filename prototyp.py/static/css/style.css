@@ -1,0 +1,57 @@
+:root {
+  /* Dark theme colors */
+  --bg: #0f0f0f;
+  --fg: #e0e0e0;
+  --card-bg: #1a1a1a;
+  --accent: #00ffe7;
+  --accent-dark: #0066ff;
+  --border: #333;
+}
+
+.light-mode {
+  /* Light theme overrides */
+  --bg: #f5f5f5;
+  --fg: #222;
+  --card-bg: #ffffff;
+  --accent: #0066ff;
+  --accent-dark: #00ffe7;
+  --border: #ccc;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* … rest of your CSS … replacing hard‑coded colors with variables … */
+
+h1 {
+    color: var(--accent);
+    /* … */
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    /* … */
+}
+
+.btn-info {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+}
+
+.btn-success {
+    background-color: var(--accent-dark);
+    border-color: var(--accent-dark);
+    color: #fff;
+}
+
+/* and so on … */

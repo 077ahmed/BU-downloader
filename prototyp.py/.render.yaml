@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: video-downloader
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn prototyp.py.app:app
+    envVars:
+      - key: SECRET_KEY
+        value: your-very-secret-key 

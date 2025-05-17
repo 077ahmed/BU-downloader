@@ -1,0 +1,9 @@
+Flask
+yt_dlp
+flask-sqlalchemy
+flask-login
+werkzeug
+Flask-WTF
+requests
+gunicorn
+python-dotenv

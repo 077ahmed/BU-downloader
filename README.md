@@ -22,7 +22,7 @@ A Flask web application to download videos and audio from YouTube, TikTok, Insta
    ```
 3. **Run the app:**
    ```bash
-   python prototyp.py/app.py
+   python app.py
    ```
 4. **Visit:**
    Open [http://localhost:5000](http://localhost:5000) in your browser.

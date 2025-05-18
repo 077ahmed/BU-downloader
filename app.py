@@ -19,12 +19,17 @@ if app.secret_key == 'your_secret_key_here':
     print('WARNING: Using default secret key! Set SECRET_KEY in your .env file for production.')
 csrf = CSRFProtect(app)
 
+# Create necessary directories
 DOWNLOAD_DIR = os.path.join(app.root_path, 'downloads')
+DB_DIR = os.path.join(app.root_path, 'data')
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+os.makedirs(DB_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DB_DIR, 'users.db')
 
 # ---------- DB ----------
 def init_db():
-    with sqlite3.connect('users.db') as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,7 +48,7 @@ def init_db():
         ''')
 
 def ensure_platform_column():
-    with sqlite3.connect('users.db') as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(downloads)")
         columns = [info[1] for info in cursor.fetchall()]
@@ -55,6 +60,7 @@ def ensure_platform_column():
             except Exception as e:
                 print(f'Error adding platform column: {e}')
 
+# Initialize database
 init_db()
 ensure_platform_column()
 
@@ -210,7 +216,7 @@ def signup():
         except ValueError as ve:
             return str(ve)
         try:
-            with sqlite3.connect('users.db') as conn:
+            with sqlite3.connect(DB_PATH) as conn:
                 conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
             return redirect('/login')
         except sqlite3.IntegrityError:
@@ -222,7 +228,7 @@ def login():
     if request.method == 'POST':
         username = sanitize_input(request.form['username'])
         password = request.form['password']
-        with sqlite3.connect('users.db') as conn:
+        with sqlite3.connect(DB_PATH) as conn:
             user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
             if user and verify_password_hash(user[2], password):
                 session['username'] = username
@@ -341,7 +347,7 @@ def download():
         else:
             final_name = original_name
 
-        with sqlite3.connect('users.db') as conn:
+        with sqlite3.connect(DB_PATH) as conn:
             conn.execute('INSERT INTO downloads (username, file_path, date, platform) VALUES (?, ?, ?, ?)',
                          (session['username'], final_name, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), platform))
 
@@ -361,7 +367,7 @@ def my_downloads():
     downloads = []
     if username:
         try:
-            with sqlite3.connect('users.db') as conn:
+            with sqlite3.connect(DB_PATH) as conn:
                 # Check if platform column exists in the downloads table
                 try:
                     cursor = conn.cursor()
@@ -421,7 +427,7 @@ def delete_download(filename):
             print(f"Warning: File not found for deletion, but proceeding with DB removal: {file_path}")
 
         # 2. Delete the record from the database
-        with sqlite3.connect('users.db') as conn:
+        with sqlite3.connect(DB_PATH) as conn:
             cursor = conn.cursor()
             # Match username AND filename for security
             cursor.execute('DELETE FROM downloads WHERE username = ? AND file_path = ?',

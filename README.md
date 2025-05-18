@@ -27,20 +27,6 @@ A Flask web application to download videos and audio from YouTube, TikTok, Insta
 4. **Visit:**
    Open [http://localhost:5000](http://localhost:5000) in your browser.
 
-## Deploying to Render.com
-
-1. Push your code to GitHub.
-2. Create a new Web Service on [Render.com](https://render.com/).
-3. Set the build command:
-   ```
-   pip install -r requirements.txt
-   ```
-4. Set the start command:
-   ```
-   gunicorn prototyp.py.app:app
-   ```
-5. Add environment variables (e.g., `SECRET_KEY`).
-6. Deploy and share your public URL!
 
 ## Notes
 - For persistent storage, consider using a managed database (SQLite resets on redeploy).

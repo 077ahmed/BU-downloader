@@ -114,8 +114,8 @@ def create_download_options(url, file_format, resolution=None):
         'outtmpl': output_template,
         'quiet': True,
         'postprocessors': [],
-        'cookiefile': None,  # Set to a cookies.txt file path if needed
         'restrictfilenames': True,  # Only allow safe characters in filenames
+        'cookiesfrombrowser': ('chrome',),  # Use Chrome cookies for all platforms
     }
     
     # Platform-specific settings

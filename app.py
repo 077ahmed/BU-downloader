@@ -115,34 +115,65 @@ def create_download_options(url, file_format, resolution=None):
         'quiet': True,
         'postprocessors': [],
         'restrictfilenames': True,  # Only allow safe characters in filenames
-        'cookiesfrombrowser': ('chrome',),  # Use Chrome cookies for all platforms
+        'nocheckcertificate': True,
+        'ignoreerrors': True,
+        'no_warnings': True,
+        'extract_flat': False,
     }
     
     # Platform-specific settings
-    if platform == "tiktok":
-        ydl_opts['headers'] = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-            'Referer': 'https://www.tiktok.com/'
-        }
+    if platform == "youtube":
+        ydl_opts.update({
+            'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+            'merge_output_format': 'mp4',
+            'postprocessor_args': {
+                'ffmpeg': [
+                    '-c:v', 'libx264',
+                    '-preset', 'fast',
+                    '-crf', '23',
+                    '-c:a', 'aac',
+                    '-b:a', '192k',
+                    '-ac', '2',
+                    '-vsync', '0'
+                ]
+            }
+        })
+    elif platform == "tiktok":
+        ydl_opts.update({
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+                'Referer': 'https://www.tiktok.com/'
+            },
+            'format': 'bestvideo+bestaudio/best'
+        })
     elif platform == "instagram":
-        ydl_opts['headers'] = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-            'Referer': 'https://www.instagram.com/'
-        }
-        ydl_opts['sleep_interval'] = 1
-        ydl_opts['max_sleep_interval'] = 5
+        ydl_opts.update({
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+                'Referer': 'https://www.instagram.com/'
+            },
+            'format': 'bestvideo+bestaudio/best',
+            'sleep_interval': 1,
+            'max_sleep_interval': 5
+        })
     elif platform == "twitter":
-        ydl_opts['headers'] = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-            'Referer': 'https://twitter.com/'
-        }
+        ydl_opts.update({
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+                'Referer': 'https://twitter.com/'
+            },
+            'format': 'bestvideo+bestaudio/best'
+        })
     elif platform == "facebook":
-        ydl_opts['headers'] = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-            'Referer': 'https://www.facebook.com/'
-        }
-        ydl_opts['sleep_interval'] = 1
-        ydl_opts['max_sleep_interval'] = 5
+        ydl_opts.update({
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+                'Referer': 'https://www.facebook.com/'
+            },
+            'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best',
+            'sleep_interval': 1,
+            'max_sleep_interval': 5
+        })
     
     # Configure based on format
     if file_format == 'mp3':
@@ -153,38 +184,18 @@ def create_download_options(url, file_format, resolution=None):
             'preferredquality': '192',
         })
     else:  # MP4 video
-        if platform == "tiktok":
-            ydl_opts['format'] = 'bestvideo+bestaudio/best'
-        elif platform == "instagram":
-            ydl_opts['format'] = 'bestvideo+bestaudio/best'
-        elif platform == "twitter":
-            ydl_opts['format'] = 'bestvideo+bestaudio/best'
-        elif platform == "facebook":
-            ydl_opts['format'] = 'bestvideo[height<=720]+bestaudio/best[height<=720]/best'
-        else:
-            if resolution:
-                if int(resolution) >= 1440:
-                    ydl_opts['format'] = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]/best'
-                else:
-                    ydl_opts['format'] = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]/best'
+        if resolution:
+            if int(resolution) >= 1440:
+                ydl_opts['format'] = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]/best'
             else:
-                ydl_opts['format'] = 'bestvideo+bestaudio/best'
+                ydl_opts['format'] = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]/best'
+        
         ydl_opts['merge_output_format'] = 'mp4'
         ydl_opts['postprocessors'].append({
             'key': 'FFmpegVideoConvertor',
             'preferedformat': 'mp4'
         })
-        ydl_opts['postprocessor_args'] = {
-            'ffmpeg': [
-                '-c:v', 'libx264',
-                '-preset', 'fast',
-                '-crf', '23',
-                '-c:a', 'aac',
-                '-b:a', '192k',
-                '-ac', '2',
-                '-vsync', '0'
-            ]
-        }
+    
     return ydl_opts
 
 def resolve_tiktok_shortlink(url):

@@ -11,6 +11,7 @@ from utils.security import sanitize_input, create_password_hash, verify_password
 import requests
 import uuid
 from dotenv import load_dotenv
+import shutil
 
 load_dotenv()
 app = Flask(__name__)
@@ -65,6 +66,9 @@ init_db()
 ensure_platform_column()
 
 # ---------- HELPER FUNCTIONS ----------
+os.environ["PATH"] = r"E:\\ffmpeg\\bin;" + os.environ["PATH"]
+print("ffmpeg found at:", shutil.which("ffmpeg"))
+
 def detect_platform(url):
     """Detect which platform the URL belongs to."""
     # TikTok URL patterns
@@ -369,8 +373,11 @@ def download():
         return jsonify(response_data)
 
     except Exception as e:
-        print("❌ Download error:", str(e))
-        return jsonify({'error': str(e)}), 400
+        error_msg = str(e)
+        if 'Requested format is not available' in error_msg:
+            return jsonify({'error': 'The selected resolution or format is not available for this video. Please choose a different resolution.'}), 400
+        print("❌ Download error:", error_msg)
+        return jsonify({'error': error_msg}), 400
 
 @app.route('/my_downloads')
 def my_downloads():
@@ -463,6 +470,26 @@ def delete_download(filename):
     except Exception as e:
         print(f"❌ Unexpected error during deletion: {e}")
         return jsonify({'error': 'An unexpected error occurred.'}), 500
+
+@app.route('/list_formats', methods=['POST'])
+@csrf.exempt
+def list_formats():
+    data = request.get_json(force=True)
+    url = data.get('url')
+    try:
+        with YoutubeDL({'quiet': True}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            formats = info.get('formats', [])
+            # Only allow standard resolutions
+            standard_res = [144, 240, 360, 480, 720, 1080, 1440, 2160]
+            available = sorted(set(
+                int(f.get('height')) for f in formats
+                if f.get('height') and int(f.get('height')) in standard_res
+            ))
+            resolutions = [f"{h}p" for h in available]
+            return jsonify({'resolutions': resolutions})
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 # ---------- START ----------
 if __name__ == '__main__':

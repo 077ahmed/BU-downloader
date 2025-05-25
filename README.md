@@ -9,6 +9,28 @@ A Flask web application to download videos and audio from YouTube, TikTok, Insta
 - Mobile-friendly, modern interface
 - Admin can delete downloads
 
+## Prerequisites
+
+### FFmpeg Installation
+FFmpeg is required for video processing. Install it based on your operating system:
+
+**Windows:**
+1. Download FFmpeg from [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+2. Extract the downloaded zip file
+3. Add FFmpeg's bin folder to your system's PATH environment variable
+4. Verify installation by opening a new terminal and typing: `ffmpeg -version`
+
+**macOS:**
+```bash
+brew install ffmpeg
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
+
 ## Local Setup
 
 1. **Clone the repository:**

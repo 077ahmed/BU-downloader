@@ -8,21 +8,426 @@
 
     <!-- Orbitron futuristic font -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom futuristic style -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* Action Buttons */
+        .btn-info, .btn-secondary {
+            position: relative;
+            overflow: hidden;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #00bcd4, #2196f3);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #424242, #616161);
+            color: white;
+        }
+
+        .btn-info:hover, .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-info:active, .btn-secondary:active {
+            transform: translateY(1px);
+        }
+
+        .material-icons {
+            font-size: 1.2rem;
+            vertical-align: middle;
+        }
+
+        /* Dynamic Grid Background */
+        body {
+            position: relative;
+            background-color: var(--bg);
+            color: var(--fg);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Theme Colors */
+        :root {
+            --bg: #0f0f0f;
+            --fg: #e0e0e0;
+            --card-bg: #1a1a1a;
+            --accent: #00ffe7;
+            --accent-soft: rgba(0, 255, 136, 0.3);
+            --grid-color: rgba(0, 255, 136, 0.1);
+            --text-shadow: rgba(0, 255, 136, 0.5);
+        }
+
+        .light-mode {
+            --bg: #f8fafc;
+            --fg: #2d3748;
+            --card-bg: #ffffff;
+            --accent: #4299e1;
+            --accent-soft: rgba(66, 153, 225, 0.2);
+            --grid-color: rgba(66, 153, 225, 0.08);
+            --text-shadow: rgba(66, 153, 225, 0.3);
+        }
+
+        .background-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.3;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform-origin: center;
+            transition: transform 0.3s ease;
+        }
+
+        .light-mode .background-grid {
+            opacity: 0.15;
+        }
+
+        .background-grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                var(--accent) 0%,
+                transparent 60%
+            );
+            opacity: 0.05;
+            transition: opacity 0.3s ease;
+        }
+
+        .light-mode .background-grid::before {
+            opacity: 0.02;
+            background: radial-gradient(
+                circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                var(--accent-soft) 0%,
+                transparent 70%
+            );
+        }
+
+        /* Platform Badges */
+        .platform-badge {
+            position: relative;
+            overflow: hidden;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .badge-glow {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            animation: glow 2s infinite;
+        }
+
+        .badge-content {
+            position: relative;
+            z-index: 1;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .youtube-badge { background: linear-gradient(45deg, #FF0000, #FF6B6B); }
+        .tiktok-badge { background: linear-gradient(45deg, #000000, #333333); }
+        .instagram-badge { background: linear-gradient(45deg, #E1306C, #833AB4); }
+        .twitter-badge { background: linear-gradient(45deg, #1DA1F2, #0D8ECF); }
+        .facebook-badge { background: linear-gradient(45deg, #1877F2, #0D6EFD); }
+
+        .light-mode .platform-badge {
+            opacity: 1;
+            backdrop-filter: blur(8px);
+        }
+
+        .light-mode .youtube-badge { background: linear-gradient(45deg, #ff4d4d, #ff0000); }
+        .light-mode .tiktok-badge { background: linear-gradient(45deg, #000000, #333333); }
+        .light-mode .instagram-badge { background: linear-gradient(45deg, #e1306c, #c13584); }
+        .light-mode .twitter-badge { background: linear-gradient(45deg, #1da1f2, #0d8ecf); }
+        .light-mode .facebook-badge { background: linear-gradient(45deg, #1877f2, #0d6efd); }
+
+        .platform-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Floating Icons Background */
+        .floating-icons {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            opacity: 0.15;
+            filter: blur(0.5px);
+            transition: opacity 0.5s ease;
+            font-size: 54px;
+        }
+
+        .light-mode .floating-icon {
+            opacity: 0.12;
+            filter: blur(0.7px);
+        }
+
+        .floating-icon.youtube {
+            color: #FF0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .floating-icon.tiktok {
+            color: #000000;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-icon.instagram {
+            color: #E1306C;
+            text-shadow: 0 0 20px rgba(225, 48, 108, 0.3);
+        }
+
+        .floating-icon.twitter {
+            color: #1DA1F2;
+            text-shadow: 0 0 20px rgba(29, 161, 242, 0.3);
+        }
+
+        .floating-icon.facebook {
+            color: #1877F2;
+            text-shadow: 0 0 20px rgba(24, 119, 242, 0.3);
+        }
+
+        .light-mode .floating-icon.youtube { color: #ff0000; }
+        .light-mode .floating-icon.tiktok { color: #000000; }
+        .light-mode .floating-icon.instagram { color: #e1306c; }
+        .light-mode .floating-icon.twitter { color: #1da1f2; }
+        .light-mode .floating-icon.facebook { color: #1877f2; }
+
+        /* Video Frames Animation */
+        .video-frames {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -3;
+            overflow: hidden;
+        }
+
+        .video-frame {
+            position: absolute;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: frameAppear 4s ease-in-out forwards;
+        }
+
+        .light-mode .video-frame {
+            border-color: var(--accent-soft);
+            opacity: 0.5;
+            box-shadow: 0 2px 10px rgba(99, 179, 237, 0.05);
+        }
+
+        .video-frame::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            height: 25px;
+            background: linear-gradient(90deg, 
+                var(--accent) 0%, 
+                var(--accent-soft) 50%,
+                transparent 100%
+            );
+            border-radius: 8px 8px 0 0;
+        }
+
+        .light-mode .video-frame::before {
+            background: linear-gradient(90deg, 
+                var(--accent-soft) 0%, 
+                rgba(99, 179, 237, 0.05) 50%,
+                transparent 100%
+            );
+        }
+
+        .video-frame::after {
+            content: '▶';
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .light-mode .video-frame::after {
+            color: rgba(44, 62, 80, 0.8);
+        }
+
+        @keyframes frameAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotate(-2deg);
+            }
+            20% {
+                opacity: 0.1;
+                transform: scale(1) rotate(0deg);
+            }
+            80% {
+                opacity: 0.1;
+                transform: scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.1) rotate(2deg);
+            }
+        }
+
+        /* Progress Bar */
+        .futuristic-progress {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 3px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light-mode .futuristic-progress {
+            background: rgba(226, 232, 240, 0.5);
+            border-color: #e2e8f0;
+        }
+
+        .progress-container {
+            position: relative;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .light-mode .progress-container {
+            background: rgba(247, 250, 252, 0.8);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00b3ff);
+            position: relative;
+            transition: width 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .light-mode .progress-bar {
+            background: linear-gradient(90deg, #4299e1, #2b6cb0);
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            text-shadow: 0 0 10px var(--text-shadow);
+        }
+
+        .light-mode .progress-text {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        /* Card and Form Styles */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .light-mode .card {
+            border: none;
+            box-shadow: 0 4px 20px rgba(66, 153, 225, 0.1);
+        }
+
+        .light-mode .form-control,
+        .light-mode .form-select {
+            background-color: #ffffff;
+            border-color: #cbd5e0;
+            color: #2d3748;
+        }
+
+        .light-mode .form-control:focus,
+        .light-mode .form-select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25);
+        }
+
+        /* Button Adjustments */
+        .light-mode .btn-info {
+            background: linear-gradient(135deg, #4299e1, #2b6cb0);
+            opacity: 1;
+        }
+
+        .light-mode .btn-secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            opacity: 1;
+        }
+    </style>
 </head>
 <body data-is-logged-in="{{ 'true' if username else 'false' }}">
+    <div class="background-grid"></div>
+    <div class="floating-icons"></div>
+    <div class="video-frames"></div>
     <div class="theme-toggle" style="position: fixed; top: 1rem; right: 1rem; z-index: 10000;">
         <button id="themeToggleBtn" class="btn btn-outline-primary btn-sm">
           🌙 / ☀️
         </button>
       </div>      
     <div class="container py-5">
-        <h1 class="mb-4 text-center"> <h1 class="mb-4 text-center">
+        <h1 class="mb-4 text-center">
             <img
               src="{{ url_for('static', filename='img/logo.png') }}"
               alt="BU Logo"
@@ -43,11 +448,26 @@
         
         <!-- Platform badges -->
         <div class="d-flex justify-content-center gap-2 mb-4">
-            <span class="badge rounded-pill bg-danger">YouTube</span>
-            <span class="badge rounded-pill" style="background-color: #000;">TikTok</span>
-            <span class="badge rounded-pill" style="background-color: #E1306C;">Instagram</span>
-            <span class="badge rounded-pill" style="background-color: #1DA1F2;">Twitter</span>
-            <span class="badge rounded-pill" style="background-color: #1877F2;">Facebook</span>
+            <span class="badge rounded-pill platform-badge youtube-badge" data-platform="youtube">
+                <span class="badge-glow"></span>
+                <span class="badge-content">YouTube</span>
+            </span>
+            <span class="badge rounded-pill platform-badge tiktok-badge" data-platform="tiktok">
+                <span class="badge-glow"></span>
+                <span class="badge-content">TikTok</span>
+            </span>
+            <span class="badge rounded-pill platform-badge instagram-badge" data-platform="instagram">
+                <span class="badge-glow"></span>
+                <span class="badge-content">Instagram</span>
+            </span>
+            <span class="badge rounded-pill platform-badge twitter-badge" data-platform="twitter">
+                <span class="badge-glow"></span>
+                <span class="badge-content">Twitter</span>
+            </span>
+            <span class="badge rounded-pill platform-badge facebook-badge" data-platform="facebook">
+                <span class="badge-glow"></span>
+                <span class="badge-content">Facebook</span>
+            </span>
         </div>
 
         <!-- Error Alert -->
@@ -58,10 +478,16 @@
             <div class="card-body">
                 <label for="urlInput" class="form-label">Paste Video URL(s):</label>
                 <textarea id="urlInput" class="form-control mb-3" rows="3" placeholder="One URL per line or drop links here from YouTube, TikTok, Instagram or Twitter..."></textarea>
-                <button class="btn btn-info w-100 mb-2" onclick="getVideoDescription()">Get Video Info</button>
-                <button class="btn btn-secondary w-100" onclick="getAvailableResolutions()" title="Check Available Resolutions">
-                  📺 Check Resolutions
-                </button>
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-info flex-grow-1 d-flex align-items-center justify-content-center" onclick="getVideoDescription()">
+                        <span class="material-icons me-2">info</span>
+                        Get Video Info
+                    </button>
+                    <button class="btn btn-secondary flex-grow-1 d-flex align-items-center justify-content-center" onclick="getAvailableResolutions()">
+                        <span class="material-icons me-2">hd</span>
+                        Check Resolutions
+                    </button>
+                </div>
                 <div id="available-resolutions" class="mt-2 text-center text-primary"></div>
                 <div id="video-description" class="mt-3"></div>
             </div>
@@ -101,7 +527,17 @@
         </div>
 
         <!-- Progress Bar -->
-        <div id="progressArea" class="mb-4"></div>
+        <div id="progressArea" class="mb-4">
+            <div class="futuristic-progress">
+                <div class="progress-container">
+                    <div class="progress-bar" role="progressbar" style="width: 0%">
+                        <div class="progress-glow"></div>
+                        <div class="progress-text">0%</div>
+                    </div>
+                    <div class="progress-particles"></div>
+                </div>
+            </div>
+        </div>
 
         <!-- Download History -->
         <div class="card">
@@ -132,6 +568,132 @@
 
     <!-- Enhanced Inline Script for Info -->
     <script>
+        // Video frames animation
+        function createVideoFrames() {
+            const container = document.querySelector('.video-frames');
+            const frameCount = 6; // Number of frames to maintain
+            let activeFrames = 0;
+
+            function createFrame() {
+                if (activeFrames >= frameCount) return;
+
+                const frame = document.createElement('div');
+                frame.className = 'video-frame';
+                
+                // Random size (16:9 aspect ratio)
+                const width = Math.random() * 200 + 150; // 150-350px
+                frame.style.width = width + 'px';
+                frame.style.height = (width * 9/16) + 'px';
+                
+                // Random position
+                frame.style.left = Math.random() * 80 + 10 + '%';
+                frame.style.top = Math.random() * 80 + 10 + '%';
+                
+                container.appendChild(frame);
+                activeFrames++;
+
+                // Remove frame after animation
+                frame.addEventListener('animationend', () => {
+                    container.removeChild(frame);
+                    activeFrames--;
+                    // Create new frame after a delay
+                    setTimeout(createFrame, Math.random() * 1000);
+                });
+            }
+
+            // Initial frames
+            for (let i = 0; i < frameCount; i++) {
+                setTimeout(createFrame, i * 1000);
+            }
+        }
+
+        // Initialize video frames
+        createVideoFrames();
+
+        // Floating icons background
+        function createFloatingIcons() {
+            const container = document.querySelector('.floating-icons');
+            const platforms = ['youtube', 'tiktok', 'instagram', 'twitter', 'facebook'];
+            const icons = {
+                youtube: '▶️',
+                tiktok: '📱',
+                instagram: '📸',
+                twitter: '🐦',
+                facebook: '👥'
+            };
+            
+            // Create 15 floating icons (3 of each platform)
+            for (let i = 0; i < 15; i++) {
+                const platform = platforms[i % platforms.length];
+                const icon = document.createElement('div');
+                icon.className = `floating-icon ${platform}`;
+                icon.textContent = icons[platform];
+                icon.style.fontSize = Math.random() * 30 + 24 + 'px';  // Increased size range
+                
+                // Random initial position
+                icon.style.left = Math.random() * 90 + 5 + '%';  // Keep away from edges
+                icon.style.top = Math.random() * 90 + 5 + '%';   // Keep away from edges
+                
+                // Random animation properties
+                const duration = Math.random() * 15 + 25; // 25-40 seconds (slightly faster)
+                const delay = Math.random() * -15; // Random start time
+                
+                // Add animation
+                icon.style.animation = `
+                    float-x ${duration}s linear ${delay}s infinite alternate,
+                    float-y ${duration * 1.3}s linear ${delay}s infinite alternate
+                `;
+                
+                container.appendChild(icon);
+            }
+        }
+
+        // Add floating animations to style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float-x {
+                0% { transform: translateX(-15vw); }  /* Increased range */
+                100% { transform: translateX(15vw); }
+            }
+            @keyframes float-y {
+                0% { transform: translateY(-15vh); }  /* Increased range */
+                100% { transform: translateY(15vh); }
+            }
+            .floating-icon {
+                animation-timing-function: ease-in-out;
+                will-change: transform;  /* Performance optimization */
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize floating icons
+        createFloatingIcons();
+
+        // Background grid effect
+        const throttle = (func, limit) => {
+            let inThrottle;
+            return function(e) {
+                if (!inThrottle) {
+                    func(e);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        };
+
+        document.addEventListener('mousemove', throttle((e) => {
+            const grid = document.querySelector('.background-grid');
+            if (grid) {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                const rotateX = (y - 50) * 0.05;
+                const rotateY = (x - 50) * 0.05;
+                grid.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                document.documentElement.style.setProperty('--mouse-x', `${x}%`);
+                document.documentElement.style.setProperty('--mouse-y', `${y}%`);
+            }
+        }, 20));
+
         function showError(message) {
             const alert = document.getElementById('errorAlert');
             alert.textContent = message;
